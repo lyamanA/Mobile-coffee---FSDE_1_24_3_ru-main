@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Alert, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 export default function Index() {
   const router = useRouter();
 

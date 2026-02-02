@@ -14,13 +14,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { singInSchema, SingInSchemaType } from "./sign-in.schema";
 import Button from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
+
+import { useAuthStore } from "@/store/auth.store";
 
 export default function SignInScreen() {
   const {
@@ -35,35 +37,48 @@ export default function SignInScreen() {
     },
   });
 
-  const onSubmit = async (data: SingInSchemaType) => {
-    console.log("Login submit");
-    console.log(data);
-    try {
-      const user = await AsyncStorage.getItem("user");
+  // const onSubmit = async (data: SingInSchemaType) => {
+  //   console.log("Login submit");
+  //   console.log(data);
+  //   try {
+  //     const user = await AsyncStorage.getItem("user");
 
-      if (!user) {
-        Alert.alert("Error", "No user found. Please sign up first.");
+  //     if (!user) {
+  //       Alert.alert("Error", "No user found. Please sign up first.");
+  //       return;
+  //     }
+
+  //     const userData = JSON.parse(user);
+
+  //     if (
+  //       userData.email === data.email &&
+  //       userData.password === data.password
+  //     ) {
+  //       console.log("User logged in", userData);
+  //       AsyncStorage.setItem("isAuthenticated", "true");
+
+  //       router.replace("/(tabs)/home");
+  //     } else {
+  //       Alert.alert("Error", "Invalid email or password");
+  //     }
+
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+
+
+  const login = useAuthStore(state => state.login);
+    const onSubmit = async (data: SingInSchemaType) => {
+      const success = await login(data.email, data.password);
+      if (!success) {
+        Alert.alert("Error", "Invalid email or password");
         return;
       }
+      router.replace("/(tabs)/home");
+    };
 
-      const userData = JSON.parse(user);
-
-      if (
-        userData.email === data.email &&
-        userData.password === data.password
-      ) {
-        console.log("User logged in", userData);
-        AsyncStorage.setItem("isAuthenticated", "true");
-
-        router.replace("/(tabs)/home");
-      } else {
-        Alert.alert("Error", "Invalid email or password");
-      }
-
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const handleBack = () => {
     router.replace("/");

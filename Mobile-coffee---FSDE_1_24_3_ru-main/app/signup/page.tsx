@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -21,7 +21,12 @@ import { singUpSchema, SingUpSchemaType } from "./sign-up.schema";
 import Button from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
 
+import { useAuthStore } from "@/store/auth.store";
+import { Alert } from "react-native";
+
+
 export default function SignUpScreen() {
+  const register = useAuthStore(state => state.register);
   const {
     control,
     handleSubmit,
@@ -36,16 +41,36 @@ export default function SignUpScreen() {
     },
   });
 
-  const onSubmit = async (data: SingUpSchemaType) => {
-    console.log("submit sign up");
-    console.log(data);
-    try {
-      router.push("/");
-      AsyncStorage.setItem("user", JSON.stringify(data));
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const onSubmit = async (data: SingUpSchemaType) => {
+  //   console.log("submit sign up");
+  //   console.log(data);
+  //   try {
+  //     router.push("/");
+  //     AsyncStorage.setItem("user", JSON.stringify(data));
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+
+const onSubmit = async (data: SingUpSchemaType) => {
+  const success = await register({
+    name: data.name,
+    surname: data.surname,
+    email: data.email,
+    password: data.password,
+  });
+
+  if (!success) {
+    Alert.alert("Error", "User with this email already exists");
+    return;
+  }
+
+  Alert.alert("Success", "Account created");
+  router.replace("/signin/page");
+};
+
+
 
   const handleBack = () => {
     router.replace("/");
